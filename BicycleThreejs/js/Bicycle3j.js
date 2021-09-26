@@ -425,7 +425,7 @@ function addBicycle(){
         pedalGroup.position.x = 21;
         pedalGroup.position.y = 2;
         pedalGroup.position.z = 1.5;
-        pedalGearConnection.scale.set(1.5, 1, 1.5);
+        pedalGearConnection.scale.set(1.5, 0.5, 1.5);
         pedalGroup.add(pedalGearConnection);
 
 
