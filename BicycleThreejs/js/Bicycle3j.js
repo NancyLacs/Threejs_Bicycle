@@ -350,7 +350,7 @@ function addBicycle(){
         frame.add(seatMesh);
 
         //back gear cylinder
-        let gearCylinderGeo = new THREE.CylinderGeometry(2.5, 2.5, 0.5, 50, 2, false,0, Math.PI *2);
+        let gearCylinderGeo = new THREE.CylinderGeometry(1.5, 1.5, 0.5, 50, 2, false,0, Math.PI *2);
         let gearCylinderMesh = new THREE.Mesh(gearCylinderGeo, materials[7]);
         let gearSpikeGeo = createSpikeSplineShape();
         let gearSpikeMesh = createSpikeMesh(gearSpikeGeo, materials[2]);
@@ -362,8 +362,8 @@ function addBicycle(){
         for (let i = 0; i < 2*Math.PI; i+=step){
             let gearSpikeClone = gearSpikeMesh.clone();
             gearSpikeClone.rotation.z = i - 1.6;
-            gearSpikeClone.position.x = 2.5 * Math.cos(i);
-            gearSpikeClone.position.z = 2.5 * Math.sin(i);
+            gearSpikeClone.position.x = 1.5 * Math.cos(i);
+            gearSpikeClone.position.z = 1.5 * Math.sin(i);
             gearCylinderMesh.add(gearSpikeClone);
         }
 
@@ -399,7 +399,7 @@ function addBicycle(){
         pedalGroup.position.x = 21;
         pedalGroup.position.y = 2;
         pedalGroup.position.z = 1.5;
-        pedalGearConnection.scale.set(1.2, 1, 1.2);
+        pedalGearConnection.scale.set(1.5, 1, 1.5);
         pedalGroup.add(pedalGearConnection);
 
 
