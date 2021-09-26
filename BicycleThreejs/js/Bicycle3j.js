@@ -350,7 +350,7 @@ function addBicycle(){
         frame.add(seatMesh);
 
         //back gear cylinder
-        let gearCylinderGeo = new THREE.CylinderGeometry(1.5, 1.5, 0.5, 50, 2, false,0, Math.PI *2);
+        let gearCylinderGeo = new THREE.CylinderGeometry(2, 2, 0.4, 50, 2, false,0, Math.PI *2);
         let gearCylinderMesh = new THREE.Mesh(gearCylinderGeo, materials[7]);
         let gearSpikeGeo = createSpikeSplineShape();
         let gearSpikeMesh = createSpikeMesh(gearSpikeGeo, materials[2]);
@@ -362,28 +362,54 @@ function addBicycle(){
         for (let i = 0; i < 2*Math.PI; i+=step){
             let gearSpikeClone = gearSpikeMesh.clone();
             gearSpikeClone.rotation.z = i - 1.6;
-            gearSpikeClone.position.x = 1.5 * Math.cos(i);
-            gearSpikeClone.position.z = 1.5 * Math.sin(i);
+            gearSpikeClone.position.x = 2 * Math.cos(i);
+            gearSpikeClone.position.z = 2 * Math.sin(i);
             gearCylinderMesh.add(gearSpikeClone);
         }
 
         //gearCylinderMesh.scale.y = 0.5;
         gearCylinderMesh.rotation.x = Math.PI/2;
-        gearCylinderMesh.position.z = 1.5;
-        let gearCylinderMiddle = gearCylinderMesh.clone();
+        gearCylinderMesh.position.z = 1.25;
+        gearCylinderMesh.scale.y = 0.5;
+        let gearCylinder7 = gearCylinderMesh.clone();
         let pedalGearConnection = gearCylinderMesh.clone();
         gearGroup.add(gearCylinderMesh);
 
         //middle gear cylinder
-        gearCylinderMiddle.position.z = 2.1;
-        gearCylinderMiddle.scale.set(0.8, 1, 0.8);
-        let gearCylinderFront = gearCylinderMiddle.clone();
-        gearGroup.add(gearCylinderMiddle);
+        gearCylinder7.position.z = 1.55;
+        gearCylinder7.scale.set(0.9, 0.5, 0.9);
+        let gearCylinder6= gearCylinder7.clone();
+        gearGroup.add(gearCylinder7);
 
         //front gear cylinder
-        gearCylinderFront.position.z = 2.7;
-        gearCylinderFront.scale.set(0.6, 1, 0.6);
-        gearGroup.add(gearCylinderFront);
+        gearCylinder6.position.z = 1.85;
+        gearCylinder6.scale.set(0.8, 0.5, 0.8);
+        let gearCylinder5 = gearCylinder6.clone();
+        gearGroup.add(gearCylinder6);
+
+        gearCylinder5.scale.set(0.7, 0.5, 0.7);
+        gearCylinder5.position.z = 2.15;
+        let gearCylinder4 = gearCylinder5.clone();
+        gearGroup.add(gearCylinder5);
+
+        gearCylinder4.scale.set(0.6, 0.5, 0.6);
+        gearCylinder4.position.z = 2.45;
+        let gearCylinder3 = gearCylinder4.clone();
+        gearGroup.add(gearCylinder4);
+
+        gearCylinder3.scale.set(0.5, 0.5, 0.5);
+        gearCylinder3.position.z = 2.75;
+        let gearCylinder2 = gearCylinder3.clone();
+        gearGroup.add(gearCylinder3);
+
+        gearCylinder2.scale.set(0.4, 0.5, 0.4);
+        gearCylinder2.position.z = 3.05;
+        let gearCylinder1 = gearCylinder3.clone();
+        gearGroup.add(gearCylinder2);
+
+        gearCylinder1.scale.set(0.3, 0.5, 0.3);
+        gearCylinder1.position.z = 3.35;
+        gearGroup.add(gearCylinder1);
 
         //
         let brakeGeo = new THREE.CylinderGeometry(2.5, 2.5, 0.2, 50, 2, false,0, Math.PI *2);
