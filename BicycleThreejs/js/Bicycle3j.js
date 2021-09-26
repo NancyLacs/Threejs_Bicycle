@@ -10,6 +10,7 @@ let lastTime = 0.0;
 let bicycle;
 let wheel;
 let frontWheel;
+let pedalGroup;
 let wheelRotation = Math.PI;
 
 let SIZE = 500;
@@ -99,6 +100,8 @@ function addBicycle(){
     wheel = new THREE.Group(); //gruppe for hjul
     let frontBikePart = new THREE.Group(); //gruppe for frontdelen av sykkel (med hjul) - for å gjøre det mulig å svinge
     let frame = new THREE.Group(); // ramma til sykkel
+    let gearGroup = new THREE.Group(); //alle tre girsylindre
+    pedalGroup = new THREE.Group(); //for å synkronisere rotasjon av pedaler
 
 
     const loadManager = new THREE.LoadingManager();
@@ -111,7 +114,9 @@ function addBicycle(){
         new THREE.MeshPhongMaterial({ map: loader.load('images/bluedrops.jpg')}),
         new THREE.MeshLambertMaterial({ map: loader.load('images/leather.jpg')}),
         new THREE.MeshLambertMaterial({ map: loader.load('images/grass.jpg')}),
-        new THREE.MeshPhongMaterial({ map: loader.load('images/whiteseat.jpg')})
+        new THREE.MeshLambertMaterial({ map: loader.load('images/whiteseat.jpg')}),
+        new THREE.MeshPhongMaterial({ map: loader.load('images/goldpattern.jpg')}),
+        new THREE.MeshLambertMaterial({ map: loader.load('images/metalholes.jpg')})
     ];
 
     loadManager.onLoad = () => {
@@ -131,8 +136,9 @@ function addBicycle(){
         wheel.add(innerWheelMesh);
         let thinCylinderGeometry = new THREE.CylinderGeometry(0.05, 0.05, 15, 64,1,false,0, 6.3);
         let thinCylinderMesh = new THREE.Mesh(thinCylinderGeometry, materials[2]);
+        let pedalConnectionMiddleHorizontal = thinCylinderMesh.clone();
         wheel.add(thinCylinderMesh);
-        for (let i = 0; i < 2*Math.PI; i+=2*Math.PI/20){
+        for (let i = 0; i < Math.PI; i+=Math.PI/10){
             let thinTubeCopy = thinCylinderMesh.clone();
             thinTubeCopy.rotation.z = i;
             wheel.add(thinTubeCopy);
@@ -166,7 +172,6 @@ function addBicycle(){
         //frontTorsoMesh.translateX(3);
         frontTorsoMesh.scale.x = 1.7;
         frontTorsoMesh.scale.z = 1.7;
-        //frontTorsoGeo.center();
         frontBikePart.add(frontTorsoMesh);
 
         frontOverWheel.rotation.x = Math.PI/2;
@@ -175,8 +180,18 @@ function addBicycle(){
         frontOverWheel.scale.z = 1.7;
         let steeringBar = frontOverWheel.clone();
 
+        let wheelHolder = frontOverWheel.clone();
+        wheelHolder.scale.set(1.5, 0.06, 1.5);
+        wheelHolder.position.x = 4
+        let wheelHolderFrontLeft = wheelHolder.clone();
+        let wheelHolderBackRight = wheelHolder.clone();
+        wheelHolder.position.z = 2;
+        frontBikePart.add(wheelHolder);
+
+        wheelHolderFrontLeft.position.z = -2;
+        frontBikePart.add(wheelHolderFrontLeft);
+
         frontOverWheel.position.y = 17;
-        //frontOverWheel.position.x = -3;
         frontBikePart.add(frontOverWheel);
         sideBarWheel.scale.y = 1.0;
 
@@ -193,7 +208,6 @@ function addBicycle(){
         frontBikePart.add(sideBarWheel2);
 
         steeringBar.position.y = 34.5;
-        //steeringBar.position.x = -3;
         let middleSteeringHorizontal = steeringBar.clone();
         steeringBar.scale.x = 1;
         steeringBar.scale.y = 0.5;
@@ -204,10 +218,8 @@ function addBicycle(){
         middleSteeringVertical.scale.x = 1.9;
         middleSteeringVertical.scale.z = 1.9;
         middleSteeringVertical.position.y = 34;
-        //middleSteeringVertical.position.x= -3;
         frontBikePart.add(middleSteeringVertical);
 
-        //middleSteeringHorizontal.scale.x = 1.3;
         middleSteeringHorizontal.scale.y = 0.2;
         middleSteeringHorizontal.scale.z = 1.3;
         frontBikePart.add(middleSteeringHorizontal);
@@ -226,6 +238,15 @@ function addBicycle(){
 
         handle2.position.z = -6;
         frontBikePart.add(handle2);
+
+        //frame
+        wheelHolderBackRight.position.x = -0.02;
+        let wheelHolderBackLeft = wheelHolderBackRight.clone();
+        wheelHolderBackRight.position.z = 4;
+        frame.add(wheelHolderBackRight);
+
+        wheelHolderBackLeft.position.z = -4;
+        frame.add(wheelHolderBackLeft);
 
         sideBarBackWheel.scale.y = 0.75;
         sideBarBackWheel.rotation.z = Math.PI/2;
@@ -309,32 +330,170 @@ function addBicycle(){
         underSeatMesh.position.y = 27;
         frame.add(underSeatMesh);
 
+        //pedal holder
+        let pedalHolder = new THREE.TorusGeometry(1, 2.5, 5, 60);
+        let pedalHolderMesh = new THREE.Mesh(pedalHolder, materials[3]);
+        pedalHolderMesh.scale.z = 0.9;
+        pedalHolderMesh.position.x = 21;
+        pedalHolderMesh.position.y = 2;
+        frame.add(pedalHolderMesh);
+
+
+
+        //seat
         let seatGeo = new THREE.CylinderGeometry(3, 3, 12, 50, 2, false,0, Math.PI);
         let seatMesh = new THREE.Mesh(seatGeo, materials[6]);
         seatMesh.rotation.z = Math.PI/2;
         seatMesh.position.x = 8;
         seatMesh.position.y = 27;
         seatMesh.scale.x = 0.7;
-
         frame.add(seatMesh);
+
+        //back gear cylinder
+        let gearCylinderGeo = new THREE.CylinderGeometry(2.5, 2.5, 0.5, 50, 2, false,0, Math.PI *2);
+        let gearCylinderMesh = new THREE.Mesh(gearCylinderGeo, materials[7]);
+        let gearSpikeGeo = createSpikeSplineShape();
+        let gearSpikeMesh = createSpikeMesh(gearSpikeGeo, materials[2]);
+        gearSpikeMesh.scale.set(0.15, 0.12, 1);
+        gearSpikeMesh.rotation.x = Math.PI/2;
+        gearSpikeMesh.position.z = 4;
+        gearSpikeMesh.position.y = 0.2;
+        let step = (2*Math.PI)/30;
+        for (let i = 0; i < 2*Math.PI; i+=step){
+            let gearSpikeClone = gearSpikeMesh.clone();
+            gearSpikeClone.rotation.z = i - 1.6;
+            gearSpikeClone.position.x = 2.5 * Math.cos(i);
+            gearSpikeClone.position.z = 2.5 * Math.sin(i);
+            gearCylinderMesh.add(gearSpikeClone);
+        }
+
+        //gearCylinderMesh.scale.y = 0.5;
+        gearCylinderMesh.rotation.x = Math.PI/2;
+        gearCylinderMesh.position.z = 1.5;
+        let gearCylinderMiddle = gearCylinderMesh.clone();
+        let pedalGearConnection = gearCylinderMesh.clone();
+        gearGroup.add(gearCylinderMesh);
+
+        //middle gear cylinder
+        gearCylinderMiddle.position.z = 2.1;
+        gearCylinderMiddle.scale.set(0.8, 1, 0.8);
+        let gearCylinderFront = gearCylinderMiddle.clone();
+        gearGroup.add(gearCylinderMiddle);
+
+        //front gear cylinder
+        gearCylinderFront.position.z = 2.7;
+        gearCylinderFront.scale.set(0.6, 1, 0.6);
+        gearGroup.add(gearCylinderFront);
+
+        //
+        let brakeGeo = new THREE.CylinderGeometry(2.5, 2.5, 0.2, 50, 2, false,0, Math.PI *2);
+        let frontBrakeMesh = new THREE.Mesh(brakeGeo, materials[2]);
+        frontBrakeMesh.rotation.x = Math.PI/2;
+        frontBrakeMesh.position.z = -1.2;
+        let backBrake = frontBrakeMesh.clone();
+        frontWheel.add(frontBrakeMesh);
+
+        backBrake.position.z = -2.9;
+        wheel.add(backBrake);
+
+        pedalGroup.position.x = 21;
+        pedalGroup.position.y = 2;
+        pedalGroup.position.z = 1.5;
+        pedalGearConnection.scale.set(1.2, 1, 1.2);
+        pedalGroup.add(pedalGearConnection);
+
+
+        pedalConnectionMiddleHorizontal.scale.set(7, 0.7, 7);
+        pedalConnectionMiddleHorizontal.position.z = -1.45;
+        let pedalConnectionVertical = pedalConnectionMiddleHorizontal.clone();
+        let pedalLowerHorizontal = pedalConnectionMiddleHorizontal.clone();
+        pedalConnectionMiddleHorizontal.rotation.x = Math.PI/2;
+        pedalGroup.add(pedalConnectionMiddleHorizontal);
+
+        pedalConnectionVertical.scale.y = 0.6;
+        pedalConnectionVertical.position.y = -4.4;
+        let pedalConnectionVerticalLeft = pedalConnectionVertical.clone();
+        pedalConnectionVertical.position.z = 3.45;
+        pedalGroup.add(pedalConnectionVertical);
+
+        pedalConnectionVerticalLeft.position.y = 4.3;
+        pedalConnectionVerticalLeft.position.z = -6.4;
+        pedalGroup.add(pedalConnectionVerticalLeft);
+
+        pedalLowerHorizontal.rotation.x = Math.PI/2;
+        pedalLowerHorizontal.scale.y = 0.2;
+        pedalLowerHorizontal.position.y = -8.65;
+        let pedalLowerHorizontalLeft = pedalLowerHorizontal.clone();
+        pedalLowerHorizontal.position.z = 4.8;
+        pedalGroup.add(pedalLowerHorizontal);
+
+        pedalLowerHorizontalLeft.position.z = -7.6;
+        pedalLowerHorizontalLeft.position.y = 9;
+        pedalGroup.add(pedalLowerHorizontalLeft);
+
+        let pedalFootRight = new THREE.BoxGeometry(3, 1, 5);
+        let pedalFootRightMesh = new THREE.Mesh(pedalFootRight, materials[8]);
+        let pedalFootLeft = pedalFootRightMesh.clone();
+        pedalFootRightMesh.position.y = -8.75;
+        pedalFootRightMesh.position.z = 7;
+        pedalGroup.add(pedalFootRightMesh);
+
+        pedalFootLeft.position.y = 9;
+        pedalFootLeft.position.z = -10;
+        pedalGroup.add(pedalFootLeft);
 
         /* rotasjon på y-aksen av frontBikePart brukes til å svinge)*/
         //frontBikePart.rotation.y = 1.2;
 
 
-        //frontBikePart.rotation.z = 0.4;
-
         frontBikePart.position.x = 45;
 
-
+        wheel.add(gearGroup);
+        bicycle.add(pedalGroup);
         bicycle.add(wheel);
         bicycle.add(frontBikePart);
         bicycle.add(frame);
-            scene.add(bicycle);
+        scene.add(bicycle);
 
         animate();
 
     }
+}
+
+function createSpikeMesh(shape, material) {
+    let extrudeSettings = {
+        depth: 0.4,
+        bevelEnabled: false,
+        bevelSegments: 1,
+        steps: 1,
+        bevelSize: 1,
+        bevelThickness: 0.2
+    };
+    let geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+    let spikeMesh = new THREE.Mesh( geometry, material );
+    spikeMesh.translateOnAxis(new THREE.Vector3(0,-0.2,0), 1);
+    spikeMesh.scale.set(0.3, 0.25, 1);
+    return spikeMesh;
+}
+
+// Smoooth...
+function createSpikeSplineShape() {
+    let spikeShape = new THREE.Shape();
+    spikeShape.moveTo( -4, 0 );
+    spikeShape.splineThru([
+        new THREE.Vector2(-3, 0.4),
+        new THREE.Vector2(-2, 1.2),
+        new THREE.Vector2(-1, 3),
+        new THREE.Vector2(0, 5),
+        new THREE.Vector2(1, 3),
+        new THREE.Vector2(2, 1.2),
+        new THREE.Vector2(3, 0.4),
+        new THREE.Vector2(4, 0),
+    ]);
+    spikeShape.lineTo(4,-1);
+    spikeShape.lineTo(-4,-1);
+    spikeShape.lineTo(-4,0);
+    return spikeShape;
 }
 
 
@@ -352,6 +511,7 @@ function animate(currentTime) {
     wheelRotation %= (Math.PI * 2); // "Rull rundt
     wheel.rotation.z = wheelRotation;
     frontWheel.rotation.z = wheelRotation;
+    pedalGroup.rotation.z = wheelRotation;
     controls.update();
     render();
 }
