@@ -95,6 +95,18 @@ function onWindowResize() {
     render();
 }
 
+function makeTorusMesh(radius, tube, radialSegments, tubularSegments, material){
+    let wheelGeometry = new THREE.TorusGeometry(radius, tube, radialSegments, tubularSegments);
+    let wheelMesh = new THREE.Mesh(wheelGeometry, material);
+    return wheelMesh;
+}
+
+function makeCylinderMesh(radiusTop, radiusBottom, height, radialSegments, heightegments, openEnded, thetaStart, thetaLength, material){
+    let cylinderGeometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments,heightegments,openEnded,thetaStart, thetaLength);
+    let cylinderMesh = new THREE.Mesh(cylinderGeometry, material);
+    return cylinderMesh;
+}
+
 function addBicycle(){
     bicycle = new THREE.Group(); //holder hele sykkelen
     wheel = new THREE.Group(); //gruppe for hjul
@@ -102,7 +114,6 @@ function addBicycle(){
     let frame = new THREE.Group(); // ramma til sykkel
     let gearGroup = new THREE.Group(); //alle tre girsylindre
     pedalGroup = new THREE.Group(); //for å synkronisere rotasjon av pedaler
-
 
     const loadManager = new THREE.LoadingManager();
     const loader = new THREE.TextureLoader(loadManager);
@@ -116,7 +127,8 @@ function addBicycle(){
         new THREE.MeshLambertMaterial({ map: loader.load('images/grass.jpg')}),
         new THREE.MeshLambertMaterial({ map: loader.load('images/whiteseat.jpg')}),
         new THREE.MeshPhongMaterial({ map: loader.load('images/goldpattern.jpg')}),
-        new THREE.MeshLambertMaterial({ map: loader.load('images/metalholes.jpg')})
+        new THREE.MeshLambertMaterial({ map: loader.load('images/metalholes.jpg')}),
+
     ];
 
     loadManager.onLoad = () => {
@@ -128,14 +140,11 @@ function addBicycle(){
         scene.add(planeMesh);*/
 
         //Wheel object
-        let rubberWheelGeometry = new THREE.TorusGeometry(7, 1.0, 30, 100);
-        let wheelMesh = new THREE.Mesh(rubberWheelGeometry, materials[1]);
-        wheel.add(wheelMesh);
-        let innerWheelGeometry = new THREE.TorusGeometry(6.4, 0.9, 3, 100);
-        let innerWheelMesh = new THREE.Mesh(innerWheelGeometry, materials[0]);
+        let rubberWheelMesh = makeTorusMesh(7, 1.0, 30, 100, materials[1]);
+        wheel.add(rubberWheelMesh);
+        let innerWheelMesh = makeTorusMesh(6.4, 0.9, 3, 100, materials[0]);
         wheel.add(innerWheelMesh);
-        let thinCylinderGeometry = new THREE.CylinderGeometry(0.05, 0.05, 15, 64,1,false,0, 6.3);
-        let thinCylinderMesh = new THREE.Mesh(thinCylinderGeometry, materials[2]);
+        let thinCylinderMesh = makeCylinderMesh(0.05, 0.05, 15, 64,1,false,0, 6.3, materials[2]);
         let pedalConnectionMiddleHorizontal = thinCylinderMesh.clone();
         wheel.add(thinCylinderMesh);
         for (let i = 0; i < Math.PI; i+=Math.PI/10){
@@ -210,7 +219,7 @@ function addBicycle(){
         steeringBar.position.y = 34.5;
         let middleSteeringHorizontal = steeringBar.clone();
         steeringBar.scale.x = 1;
-        steeringBar.scale.y = 0.5;
+        steeringBar.scale.y = 0.8;
         steeringBar.scale.z = 1;
         frontBikePart.add(steeringBar);
 
@@ -224,20 +233,35 @@ function addBicycle(){
         middleSteeringHorizontal.scale.z = 1.3;
         frontBikePart.add(middleSteeringHorizontal);
 
-        let handle1Geo = new THREE.CylinderGeometry(0.5, 0.5, 4, 64, 1, false, 0, 6.3)
+        let handle1Geo = new THREE.CylinderGeometry(0.5, 0.5, 3, 64, 1, false, 0, 6.3)
         let handle1Mesh = new THREE.Mesh(handle1Geo, materials[4]);
         handle1Mesh.scale.x = 1.2;
         handle1Mesh.scale.z = 1.2;
+        handle1Mesh.scale.y = 2;
         handle1Mesh.position.y = 34.5;
         //handle1Mesh.position.x = -3;
         handle1Mesh.rotation.x = Math.PI/2;
         let handle2 = handle1Mesh.clone();
-        handle1Mesh.position.z = 6;
+        handle1Mesh.position.z = 8;
         handle1Geo.center();
         frontBikePart.add(handle1Mesh);
 
-        handle2.position.z = -6;
+        handle2.position.z = -8;
         frontBikePart.add(handle2);
+
+        let bikeLightMesh = makeCylinderMesh(2, 1, 3, 64, 1, false, 0, 6.3, materials[3]);
+        bikeLightMesh.rotation.z = Math.PI + Math.PI/2;
+        bikeLightMesh.position.x = 1.5;
+        bikeLightMesh.position.y = 34;
+        frontBikePart.add(bikeLightMesh);
+
+        let brakeControllerMesh = makeCylinderMesh(0.5, 0.2, 11.8, 8, 1, false, 0, 6.3, materials[2]);
+        brakeControllerMesh.position.y = 34.5;
+        brakeControllerMesh.position.x = 1.5;
+        brakeControllerMesh.position.z = 4.8;
+        //brakeControllerMesh.rotation.z = Math.PI + Math.PI/2;
+        brakeControllerMesh.rotation.x= 1.6;
+        frontBikePart.add(brakeControllerMesh);
 
         //frame
         wheelHolderBackRight.position.x = -0.02;
