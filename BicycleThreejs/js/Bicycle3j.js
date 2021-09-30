@@ -28,7 +28,8 @@ const materials = [
     new THREE.MeshLambertMaterial({ map: loader.load('images/whiteseat.jpg')}),
     new THREE.MeshPhongMaterial({ map: loader.load('images/goldpattern.jpg')}),
     new THREE.MeshLambertMaterial({ map: loader.load('images/metalholes.jpg')}),
-    new THREE.LineBasicMaterial({color: 0x000000})
+    new THREE.LineBasicMaterial({color: 0x000000}),
+    new THREE.MeshLambertMaterial({ map: loader.load('images/wall.jpg')})
 
 ];
 
@@ -250,7 +251,7 @@ function addBicycle(){
         spotLight.shadow.camera.fov = 30;
         frontBikePart.add( spotLight );
         frontBikePart.add( spotLight.target );
-        spotLight.target.position.set(100, -50, 0);
+        spotLight.target.position.set(120, 34, 0);
 
         let brakeControllerMesh = makeCylinderMesh(0.5, 0.2, 11.8, 8, 1, false, 0, 6.3, materials[2]);
         brakeControllerMesh.position.y = 34.5;
@@ -503,8 +504,13 @@ function addBicycle(){
         /* rotasjon på y-aksen av frontBikePart brukes til å svinge)*/
         //frontBikePart.rotation.y = 1.2;
 
-
         frontBikePart.position.x = 45;
+
+        //wall to show spotlight
+        let wall = makeSimpleBoxMesh(10, 50, 50, materials[10]);
+        scene.add(wall);
+        wall.position.x = 100;
+        wall.position.y = 25;
 
         wheel.add(gearGroup);
         bicycle.add(pedalGroup);
