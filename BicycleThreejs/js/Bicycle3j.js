@@ -12,6 +12,7 @@ let wheel;
 let frontWheel;
 let pedalGroup;
 let wheelRotation = Math.PI;
+let currentlyPressedKeys = {};
 
 let SIZE = 500;
 
