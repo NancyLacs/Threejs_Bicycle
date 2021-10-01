@@ -12,6 +12,9 @@ let wheel;
 let frontWheel;
 let pedalGroup;
 let wheelRotation = Math.PI;
+let swingRotation = 0;
+let currentlyPressedKeys = {};
+let frontBikePart;
 
 let SIZE = 500;
 
@@ -28,8 +31,10 @@ const materials = [
     new THREE.MeshLambertMaterial({ map: loader.load('images/whiteseat.jpg')}),
     new THREE.MeshPhongMaterial({ map: loader.load('images/goldpattern.jpg')}),
     new THREE.MeshLambertMaterial({ map: loader.load('images/metalholes.jpg')}),
-    new THREE.LineBasicMaterial({color: 0x000000}),
-    new THREE.MeshLambertMaterial({ map: loader.load('images/wall.jpg')})
+    new THREE.LineBasicMaterial({color: 0x000000, linewidth: 50, linecap:'round'}),
+    new THREE.MeshLambertMaterial({ map: loader.load('images/wall.jpg')}),
+    new THREE.MeshPhongMaterial({ map: loader.load('images/glass.jpg'), emissive: 0xffffcc, emissiveIntensity: 0.4}),
+    new THREE.MeshPhongMaterial({ map: loader.load('images/silver.jpg')})
 
 ];
 
@@ -79,24 +84,39 @@ export function main(){
     window.addEventListener('resize', onWindowResize, false);
 
 
-    //document.addEventListener('keyup', handleKeyUp, false);
-    //document.addEventListener('keydown', handleKeyDown, false);
+    document.addEventListener('keyup', handleKeyUp, false);
+    document.addEventListener('keydown', handleKeyDown, false);
 }
 
 function addModels() {
     //Plan:
-    /*let gPlane = new THREE.PlaneGeometry(SIZE * 2, SIZE * 2);
+    let gPlane = new THREE.PlaneGeometry(SIZE * 2, SIZE * 2);
     let mPlane = new THREE.MeshLambertMaterial({ color: 0x33aabb, side: THREE.DoubleSide });
     let meshPlane = new THREE.Mesh(gPlane, mPlane);
     meshPlane.rotation.x = Math.PI / 2;
     meshPlane.receiveShadow = true;	//NB!
-    scene.add(meshPlane);*/
+    scene.add(meshPlane);
 
     addBicycle();
-    //bicycle.position.y = 16;
+    bicycle.position.y = 16;
 
+    //wall to show spotlight
+    let wall = makeSimpleBoxMesh(10, 50, 50, materials[10]);
+    scene.add(wall);
+    wall.position.x = 100;
+    wall.position.y = 25;
 
 }
+
+function handleKeyUp(event) {
+    currentlyPressedKeys[event.keyCode] = false;
+}
+
+function handleKeyDown(event) {
+    currentlyPressedKeys[event.keyCode] = true;
+}
+
+
 
 function render() {
     renderer.render(scene, camera);
@@ -123,7 +143,7 @@ function makeSimpleBoxMesh(width, height, depth, material){
 function addBicycle(){
     bicycle = new THREE.Group(); //holder hele sykkelen
     //wheel = new THREE.Group(); //gruppe for hjul
-    let frontBikePart = new THREE.Group(); //gruppe for frontdelen av sykkel (med hjul) - for å gjøre det mulig å svinge
+    frontBikePart = new THREE.Group(); //gruppe for frontdelen av sykkel (med hjul) - for å gjøre det mulig å svinge
     let frame = new THREE.Group(); // ramma til sykkel
     let gearGroup = new THREE.Group(); //alle tre girsylindre
     pedalGroup = new THREE.Group(); //for å synkronisere rotasjon av pedaler
@@ -233,30 +253,33 @@ function addBicycle(){
         handle2.position.z = -8;
         frontBikePart.add(handle2);
 
-        let bikeLightMesh = makeCylinderMesh(2, 1, 3, 64, 1, true, 0, 6.3, materials[3]);
+        let bikeLightMesh = makeCylinderMesh(2, 1, 3, 64, 1, false, 0, 6.3, materials[3]);
         bikeLightMesh.rotation.z = Math.PI + Math.PI/2;
         bikeLightMesh.position.x = 1.5;
         bikeLightMesh.position.y = 34;
         frontBikePart.add(bikeLightMesh);
 
-        let bikeLightGlass = makeSphereMesh(15, 48, 15, 0, 6.3, 0, 0.6, materials[5]);
+        let bikeLightGlass = makeSphereMesh(3.5, 48, 15, 0, 6.3, 0, 0.6, materials[11]);
         frontBikePart.add(bikeLightGlass);
-        bikeLightGlass.position.x = 6;
+        bikeLightGlass.rotation.z = 2*Math.PI - Math.PI/2;
+        bikeLightGlass.position.x = 0.0;
         bikeLightGlass.position.y = 34;
 
         const spotLight = new THREE.SpotLight( 0xffffff );
-        spotLight.position.set( 5, 34, 0);
-        spotLight.castShadow = true;
-
+        frontBikePart.add( spotLight );
+        frontBikePart.add( spotLight.target );
         spotLight.shadow.mapSize.width = 1024;
         spotLight.shadow.mapSize.height = 1024;
 
         spotLight.shadow.camera.near = 500;
         spotLight.shadow.camera.far = 4000;
         spotLight.shadow.camera.fov = 30;
-        frontBikePart.add( spotLight );
-        frontBikePart.add( spotLight.target );
+        spotLight.position.set( -42, 18.5, 0);
+        spotLight.castShadow = true;
         spotLight.target.position.set(120, 34, 0);
+
+        const spotLightHelper = new THREE.SpotLightHelper(spotLight);
+        frontBikePart.add(spotLightHelper);
 
         let brakeControllerMesh = makeCylinderMesh(0.5, 0.2, 11.8, 8, 1, false, 0, 6.3, materials[2]);
         brakeControllerMesh.position.y = 34.5;
@@ -493,29 +516,21 @@ function addBicycle(){
         pedalFootLeft.position.z = -10;
         pedalGroup.add(pedalFootLeft);
 
-        const points = [];
-        points.push(new THREE.Vector3(45, 34, 0));
-        points.push(new THREE.Vector3(45.5, 34.5, 0));
-        points.push(new THREE.Vector3(46, 35, 0));
-        points.push(new THREE.Vector3(46.5, 34.5, 0));
-        points.push(new THREE.Vector3(46, 34, 0));
-        points.push(new THREE.Vector3(48, 34, 0));
 
-        let frontWireGeo = new THREE.BufferGeometry().setFromPoints(points);
-        let line = new THREE.Line(frontWireGeo, materials[9]);
-
+        let line = makeRightWire();
         bicycle.add(line);
+
+        let leftLine = makeLeftBackWire();
+        bicycle.add(leftLine);
+
+        let chains = makeChains();
+        bicycle.add(chains);
 
         /* rotasjon på y-aksen av frontBikePart brukes til å svinge)*/
         //frontBikePart.rotation.y = 1.2;
 
         frontBikePart.position.x = 45;
 
-        //wall to show spotlight
-        let wall = makeSimpleBoxMesh(10, 50, 50, materials[10]);
-        scene.add(wall);
-        wall.position.x = 100;
-        wall.position.y = 25;
 
         wheel.add(gearGroup);
         bicycle.add(pedalGroup);
@@ -575,12 +590,16 @@ function animate(currentTime) {
     if (lastTime != 0.0) 		// F�rst gang er lastTime = 0.0.
         elapsed = (currentTime - lastTime) / 1000; //Opererer med sekunder.
     lastTime = currentTime;
-    let rotationSpeed = (Math.PI / 3); // Bestemmer rotasjonshastighet.
-    wheelRotation = wheelRotation - (rotationSpeed * elapsed);
-    wheelRotation %= (Math.PI * 2); // "Rull rundt
+    //let rotationSpeed = (Math.PI / 3); // Bestemmer rotasjonshastighet.
+    //wheelRotation = wheelRotation - (rotationSpeed * elapsed);
+    //wheelRotation %= (Math.PI * 2); // "Rull rundt
     wheel.rotation.z = wheelRotation;
     frontWheel.rotation.z = wheelRotation;
     pedalGroup.rotation.z = wheelRotation;
+    frontBikePart.rotation.y = swingRotation;
+    keyCheck(elapsed);
+
+
     controls.update();
     render();
 }
@@ -625,4 +644,127 @@ function makeSphereMesh(radius, widthSegments, heightSegments, phiStart, phiLeng
     let sphereGeo = new THREE.SphereGeometry(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, material);
     let sphereMesh = new THREE.Mesh(sphereGeo, material);
     return sphereMesh;
+}
+
+function makeRightWire(){
+    const points = [];
+    points.push(new THREE.Vector3(46, 34, 0));
+    points.push(new THREE.Vector3(46, 32, 0));
+    points.push(new THREE.Vector3(46, 31, 0));
+    points.push(new THREE.Vector3(46, 30, 0));
+    points.push(new THREE.Vector3(45, 29, 0));
+    points.push(new THREE.Vector3(45, 28, 0));
+    points.push(new THREE.Vector3(44.5, 27, 0));
+    points.push(new THREE.Vector3(44, 26, 0));
+    points.push(new THREE.Vector3(44, 24, 0));
+    points.push(new THREE.Vector3(44, 23, 0));
+    points.push(new THREE.Vector3(44, 22, 0));
+    points.push(new THREE.Vector3(43.5, 21, 0));
+    points.push(new THREE.Vector3(24, 4.3, 0));
+    points.push(new THREE.Vector3(23, 4.7, 0));
+    points.push(new THREE.Vector3(20, 4.8, 0));
+    points.push(new THREE.Vector3(18, 4.6, 0));
+    points.push(new THREE.Vector3(17.7, 2, 0));
+    points.push(new THREE.Vector3(17.5, 0.5, 0));
+    points.push(new THREE.Vector3(16, 0.5, 1));
+    points.push(new THREE.Vector3(13.3, 0.5, 2.7));
+    points.push(new THREE.Vector3(12.8, 0.5, 3));
+    points.push(new THREE.Vector3(2, 0.5, 3.5));
+    points.push(new THREE.Vector3(1, 0.3, 3.8));
+    points.push(new THREE.Vector3(0.5, -0.5, 3.8));
+    points.push(new THREE.Vector3(0, -1, 3.8));
+    points.push(new THREE.Vector3(-1, -1, 3.5));
+
+
+    let frontWireGeo = new THREE.BufferGeometry().setFromPoints(points);
+    let line = new THREE.Line(frontWireGeo, materials[9]);
+    line.position.z = 1;
+    return line;
+}
+
+function makeLeftBackWire(){
+    const points = [];
+    points.push(new THREE.Vector3(46, 34, 0));
+    points.push(new THREE.Vector3(46, 32, 0));
+    points.push(new THREE.Vector3(46, 31, 0));
+    points.push(new THREE.Vector3(46, 30, 0));
+    points.push(new THREE.Vector3(45, 29, 0));
+    points.push(new THREE.Vector3(45, 28, 0));
+    points.push(new THREE.Vector3(44.5, 27, 0));
+    points.push(new THREE.Vector3(44, 26, 0));
+    points.push(new THREE.Vector3(44, 24, 0));
+    points.push(new THREE.Vector3(44, 23, 0));
+    points.push(new THREE.Vector3(44, 22, 0));
+    points.push(new THREE.Vector3(43.5, 21, 0));
+    points.push(new THREE.Vector3(24, 4.3, 0));
+    points.push(new THREE.Vector3(23, 4.7, 0));
+    points.push(new THREE.Vector3(20, 4.8, 0));
+    points.push(new THREE.Vector3(18, 4.6, 0));
+    points.push(new THREE.Vector3(17.7, 2, 0));
+    points.push(new THREE.Vector3(17.5, 0.5, 0));
+    points.push(new THREE.Vector3(16, 0.5, -1));
+    points.push(new THREE.Vector3(13.3, 0.5, -2.7));
+    points.push(new THREE.Vector3(12.8, 0.5, -3));
+    points.push(new THREE.Vector3(2, 0.5, -3.5));
+    points.push(new THREE.Vector3(1, 0.3, -3.8));
+    points.push(new THREE.Vector3(0.5, -0.5, -3.8));
+    points.push(new THREE.Vector3(0, -1, -3.8));
+    points.push(new THREE.Vector3(-1, -1, -3.5));
+
+    let frontWireGeo = new THREE.BufferGeometry().setFromPoints(points);
+    let line = new THREE.Line(frontWireGeo, materials[9]);
+    line.position.z = -1;
+    return line;
+
+}
+
+function keyCheck(elapsed) {
+    let rotationSpeed = (Math.PI); // Bestemmer rotasjonshastighet.
+    if (currentlyPressedKeys[65]) { //A
+        wheelRotation = wheelRotation + (rotationSpeed * elapsed);
+        wheelRotation %= (Math.PI * 2);
+
+    }
+    if (currentlyPressedKeys[68]) {	//D
+        wheelRotation = wheelRotation - (rotationSpeed * elapsed);
+        wheelRotation %= (Math.PI * 2);
+    }
+
+
+    if (currentlyPressedKeys[83]) {	//S
+
+    }
+    if (currentlyPressedKeys[87]) {	//W
+
+    }
+
+    if (currentlyPressedKeys[86]) { //V
+        if (swingRotation <= Math.PI/2){
+            swingRotation = swingRotation + (rotationSpeed * elapsed);
+        }
+    }
+    if (currentlyPressedKeys[66]) {	//B
+        if (swingRotation >= -Math.PI/2){
+            swingRotation = swingRotation - (rotationSpeed * elapsed);
+        }
+
+    }
+}
+
+function makeChains(){
+    let chainGroup = new THREE.Group();
+    let chainElement = makeTorusMesh(1, 0.3,16, 100, materials[2]);
+    let chainElementRotatedX = chainElement.clone();
+
+    chainElement.position.y = 20;
+    chainElement.scale.x = 2.5;
+
+    chainElementRotatedX.position.y = 20;
+    chainElementRotatedX.position.x = 2;
+    chainElementRotatedX.scale.x = 1.2;
+
+
+    chainGroup.add(chainElement);
+    chainGroup.add(chainElementRotatedX)
+    return chainElement;
 }
