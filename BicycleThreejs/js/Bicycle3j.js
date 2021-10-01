@@ -239,6 +239,11 @@ function addBicycle(){
         bikeLightMesh.position.y = 34;
         frontBikePart.add(bikeLightMesh);
 
+        let bikeLightGlass = makeSphereMesh(15, 48, 15, 0, 6.3, 0, 0.6, materials[5]);
+        frontBikePart.add(bikeLightGlass);
+        bikeLightGlass.position.x = 6;
+        bikeLightGlass.position.y = 34;
+
         const spotLight = new THREE.SpotLight( 0xffffff );
         spotLight.position.set( 5, 34, 0);
         spotLight.castShadow = true;
@@ -614,4 +619,10 @@ function makeWheel(){
     middleCylinderMesh.scale.y = 0.7;
     wheel.add(middleCylinderMesh);
 
+}
+
+function makeSphereMesh(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, material){
+    let sphereGeo = new THREE.SphereGeometry(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, material);
+    let sphereMesh = new THREE.Mesh(sphereGeo, material);
+    return sphereMesh;
 }
