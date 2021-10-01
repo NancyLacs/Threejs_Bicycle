@@ -720,14 +720,19 @@ function makeLeftBackWire(){
 
 function keyCheck(elapsed) {
     let rotationSpeed = (Math.PI); // Bestemmer rotasjonshastighet.
-    if (currentlyPressedKeys[70]) { //A
+    if (currentlyPressedKeys[70]) { //F
         wheelRotation = wheelRotation + (rotationSpeed * elapsed);
         wheelRotation %= (Math.PI * 2);
-
+        if (swingRotation==0 && bicycle.position.x!=-200){
+            bicycle.position.x-=1;
+        }
     }
-    if (currentlyPressedKeys[71]) {	//D
+    if (currentlyPressedKeys[71]) {	//G
         wheelRotation = wheelRotation - (rotationSpeed * elapsed);
         wheelRotation %= (Math.PI * 2);
+        if (swingRotation==0 && bicycle.position.x!=30){
+            bicycle.position.x+=1;
+        }
     }
 
     if (currentlyPressedKeys[65]) { //A
