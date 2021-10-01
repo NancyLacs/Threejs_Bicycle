@@ -77,10 +77,8 @@ export function main(){
     addCoordSystem(scene);
 
     window.addEventListener('resize', onWindowResize, false);
-
-
-    //document.addEventListener('keyup', handleKeyUp, false);
-    //document.addEventListener('keydown', handleKeyDown, false);
+    document.addEventListener('keyup', handleKeyUp, false);
+    document.addEventListener('keydown', handleKeyDown, false);
 }
 
 function addModels() {
@@ -581,6 +579,9 @@ function animate(currentTime) {
     wheel.rotation.z = wheelRotation;
     frontWheel.rotation.z = wheelRotation;
     pedalGroup.rotation.z = wheelRotation;
+
+    keyCheck();
+
     controls.update();
     render();
 }
@@ -625,4 +626,33 @@ function makeSphereMesh(radius, widthSegments, heightSegments, phiStart, phiLeng
     let sphereGeo = new THREE.SphereGeometry(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, material);
     let sphereMesh = new THREE.Mesh(sphereGeo, material);
     return sphereMesh;
+}
+
+function keyCheck() {
+    if (currentlyPressedKeys[65]) { //A
+        camera.position.x = camera.position.x - 30 * (Math.PI/180)
+        controls.update();
+    }
+
+    if (currentlyPressedKeys[68]) { //D
+        camera.position.x = camera.position.x + 30 * (Math.PI/180)
+        controls.update();
+    }
+
+    if (currentlyPressedKeys[87]) { //W
+        camera.position.y = camera.position.y + 30 * (Math.PI/180)
+        controls.update();
+    }
+    if (currentlyPressedKeys[83]) { //S
+        camera.position.y = camera.position.y - 30 * (Math.PI/180)
+        controls.update();
+    }
+}
+
+function handleKeyUp(event) {
+    currentlyPressedKeys[event.keyCode] = false;
+}
+
+function handleKeyDown(event) {
+    currentlyPressedKeys[event.keyCode] = true;
 }
