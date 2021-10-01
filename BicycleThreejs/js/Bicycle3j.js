@@ -720,22 +720,33 @@ function makeLeftBackWire(){
 
 function keyCheck(elapsed) {
     let rotationSpeed = (Math.PI); // Bestemmer rotasjonshastighet.
-    if (currentlyPressedKeys[65]) { //A
+    if (currentlyPressedKeys[70]) { //A
         wheelRotation = wheelRotation + (rotationSpeed * elapsed);
         wheelRotation %= (Math.PI * 2);
 
     }
-    if (currentlyPressedKeys[68]) {	//D
+    if (currentlyPressedKeys[71]) {	//D
         wheelRotation = wheelRotation - (rotationSpeed * elapsed);
         wheelRotation %= (Math.PI * 2);
     }
 
-
-    if (currentlyPressedKeys[83]) {	//S
-
+    if (currentlyPressedKeys[65]) { //A
+        camera.position.x = camera.position.x - 30 * (Math.PI/180)
+        controls.update();
     }
-    if (currentlyPressedKeys[87]) {	//W
 
+    if (currentlyPressedKeys[68]) { //D
+        camera.position.x = camera.position.x + 30 * (Math.PI/180)
+        controls.update();
+    }
+
+    if (currentlyPressedKeys[87]) { //W
+        camera.position.y = camera.position.y + 30 * (Math.PI/180)
+        controls.update();
+    }
+    if (currentlyPressedKeys[83]) { //S
+        camera.position.y = camera.position.y - 30 * (Math.PI/180)
+        controls.update();
     }
 
     if (currentlyPressedKeys[86]) { //V
