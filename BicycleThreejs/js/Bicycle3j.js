@@ -34,8 +34,8 @@ const materials = [
     new THREE.LineBasicMaterial({color: 0x000000, linewidth: 50, linecap:'round'}),
     new THREE.MeshLambertMaterial({ map: loader.load('images/wall.jpg')}),
     new THREE.MeshPhongMaterial({ map: loader.load('images/glass.jpg'), emissive: 0xffffcc, emissiveIntensity: 0.4}),
-    new THREE.MeshPhongMaterial({ map: loader.load('images/silver.jpg')})
-
+    new THREE.MeshPhongMaterial({ map: loader.load('images/silver.jpg')}),
+    new THREE.MeshLambertMaterial({ map: loader.load('images/black.jpg')}),
 ];
 
 export function main(){
@@ -152,6 +152,7 @@ function addBicycle(){
         //front bike part
         frontWheel = wheel.clone();
 
+
         let middleOfFrontWheel = makeCylinderMesh(0.05, 0.05, 15, 64,1,false,0, 6.3, materials[2]);
         middleOfFrontWheel.rotation.x = Math.PI/2;
         middleOfFrontWheel.scale.x = 6;
@@ -160,6 +161,25 @@ function addBicycle(){
         frontWheel.add(middleOfFrontWheel);
         frontWheel.position.x = 4;
         frontBikePart.add(frontWheel);
+
+        let brake1 = makeSimpleBoxMesh(2, 4, 2, materials[13]);
+        let brake2 = brake1.clone();
+        brake1.position.z = -1.5;
+        brake1.rotation.z = 0.7;
+        brake1.position.x = 7;
+        brake1.position.y = 3.5;
+        frontBikePart.add(brake1);
+
+        let brakeHolderOnWheel = makeSimpleBoxMesh(5, 2, 1, materials[12]);
+        let brakeHolderBack = brakeHolderOnWheel.clone();
+        let gearChanger = brakeHolderOnWheel.clone();
+        brakeHolderOnWheel.position.z = -1.7;
+        brakeHolderOnWheel.rotation.z = 0.7;
+        brakeHolderOnWheel.position.x = 6;
+        brakeHolderOnWheel.position.y = 2;
+        frontBikePart.add(brakeHolderOnWheel);
+
+
 
         let pedalConnectionMiddleHorizontal =  makeCylinderMesh(0.05, 0.05, 15, 64,1,false,0, 6.3, materials[2]);
 
@@ -170,6 +190,7 @@ function addBicycle(){
         let middleSteeringVertical = frontTorsoMesh.clone();
         let bottomFrame = frontTorsoMesh.clone();
         let seatSupportFrame = frontTorsoMesh.clone();
+        let aroundTorsoMesh = frontTorsoMesh.clone();
         frontTorsoMesh.translateY(25.7);
         //frontTorsoMesh.translateX(3);
         frontTorsoMesh.scale.x = 1.5;
@@ -269,17 +290,62 @@ function addBicycle(){
         const spotLightHelper = new THREE.SpotLightHelper(spotLight);
         frontBikePart.add(spotLightHelper);
 
-        let brakeControllerMesh = makeCylinderMesh(0.5, 0.2, 11.8, 8, 1, false, 0, 6.3, materials[2]);
+        let brakeControllerMesh = makeCylinderMesh(0.4, 0.1, 11.8, 8, 1, false, 0, 6.3, materials[2]);
+        let brakeControllerLeft = brakeControllerMesh.clone();
         brakeControllerMesh.position.y = 34.5;
         brakeControllerMesh.position.x = 1.5;
         brakeControllerMesh.position.z = 4.8;
-        //brakeControllerMesh.rotation.z = Math.PI + Math.PI/2;
+        brakeControllerMesh.rotation.z = -0.2;
         brakeControllerMesh.rotation.x= 1.6;
         frontBikePart.add(brakeControllerMesh);
+
+        brakeControllerLeft.position.y = 34.5;
+        brakeControllerLeft.position.x = 1.5;
+        brakeControllerLeft.position.z = -4.8;
+        brakeControllerLeft.rotation.z = -0.2;
+        brakeControllerLeft.rotation.x= -1.6;
+        frontBikePart.add(brakeControllerLeft);
+
+        let gearControl = makeCylinderMesh(0.4, 0.1, 6, 8, 1, false, 0, 6.3, materials[12]);
+        let gearControlLeft = gearControl.clone();
+        gearControl.rotation.x = 1.6;
+        gearControl.rotation.z = 0.5;
+        gearControl.position.y = 35;
+        gearControl.position.x = -1;
+        gearControl.position.z = 3;
+        frontBikePart.add(gearControl);
+
+        gearControlLeft.rotation.x = -1.6;
+        gearControlLeft.rotation.z = 0.5;
+        gearControlLeft.position.y = 35;
+        gearControlLeft.position.x = -1;
+        gearControlLeft.position.z = -3;
+        frontBikePart.add(gearControlLeft);
+
+        let gearBrakeHolder = makeSimpleBoxMesh(3, 2,4, materials[13]);
+        gearBrakeHolder.position.y = 34.5;
+        frontBikePart.add(gearBrakeHolder);
 
 
 
         //frame
+        brake2.rotation.z = Math.PI/2;
+        brake2.position.z = -3;
+        brake2.position.y = 4;
+        frame.add(brake2);
+
+        brakeHolderBack.position.z = -3.7;
+        brakeHolderBack.rotation.z = Math.PI/2;
+
+        brakeHolderBack.position.y = 1.2;
+        frame.add(brakeHolderBack);
+
+        aroundTorsoMesh.scale.x = 1.7;
+        aroundTorsoMesh.scale.z = 1.7;
+        aroundTorsoMesh.scale.y = 0.6;
+        aroundTorsoMesh.position.x = 45;
+        aroundTorsoMesh.position.y = 24;
+        frame.add(aroundTorsoMesh);
         wheelHolderBackRight.position.x = -0.02;
         let wheelHolderBackLeft = wheelHolderBackRight.clone();
         wheelHolderBackRight.position.z = 4;
@@ -859,7 +925,7 @@ function addGrass(){
 
 function addPlainPlane(){
     let gPlane = new THREE.PlaneGeometry(SIZE * 2, SIZE * 2);
-    let mPlane = new THREE.MeshLambertMaterial({ color: 0x33aabb, side: THREE.DoubleSide });
+    let mPlane = new THREE.MeshLambertMaterial({ color: 0x333333, side: THREE.DoubleSide });
     let meshPlane = new THREE.Mesh(gPlane, mPlane);
     meshPlane.rotation.x = Math.PI / 2;
     meshPlane.receiveShadow = true;	//NB!
