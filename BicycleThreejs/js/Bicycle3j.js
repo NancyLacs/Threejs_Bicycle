@@ -90,12 +90,9 @@ export function main(){
 
 function addModels() {
     //Plan:
-    let gPlane = new THREE.PlaneGeometry(SIZE * 2, SIZE * 2);
-    let mPlane = new THREE.MeshLambertMaterial({ color: 0x33aabb, side: THREE.DoubleSide });
-    let meshPlane = new THREE.Mesh(gPlane, mPlane);
-    meshPlane.rotation.x = Math.PI / 2;
-    meshPlane.receiveShadow = true;	//NB!
-    scene.add(meshPlane);
+    addPlainPlane();
+
+    //addGrass(); //If grass texture.
 
     addBicycle();
     bicycle.position.y = 16;
@@ -148,16 +145,7 @@ function addBicycle(){
     let gearGroup = new THREE.Group(); //alle tre girsylindre
     pedalGroup = new THREE.Group(); //for å synkronisere rotasjon av pedaler
 
-
-
     loadManager.onLoad = () => {
-        //Plane med gress-farge
-        /*let planeGeo = new THREE.PlaneGeometry(SIZE * 2, SIZE * 2);
-        let planeMesh = new THREE.Mesh(planeGeo, materials[5]);
-        planeMesh.rotation.x = Math.PI / 2;
-        planeMesh.receiveShadow = true;	//NB!
-        scene.add(planeMesh);*/
-
         //Wheel object
         makeWheel();
 
@@ -782,19 +770,98 @@ function keyCheck(elapsed) {
 }
 
 function makeChains(){
+    let wholeChain = new THREE.Group();
     let chainGroup = new THREE.Group();
-    let chainElement = makeTorusMesh(1, 0.3,16, 100, materials[2]);
+    let chainElement = makeTorusMesh(0.5, 0.1,16, 100, materials[12]);
     let chainElementRotatedX = chainElement.clone();
-
-    chainElement.position.y = 20;
-    chainElement.scale.x = 2.5;
-
-    chainElementRotatedX.position.y = 20;
-    chainElementRotatedX.position.x = 2;
-    chainElementRotatedX.scale.x = 1.2;
+    chainElement.scale.x = 0.85;
+    chainElement.scale.y = 0.4;
+    chainElement.position.x = -1.5;
+    chainElement.position.y = 4.7;
 
 
+
+    chainElementRotatedX.position.y = 4.7 ;
+    chainElementRotatedX.position.x = chainElement.position.x +0.5;
+    chainElementRotatedX.scale.x = 0.4;
+    chainElementRotatedX.scale.y = 0.2;
+    chainElement.rotation.x = Math.PI/2;
     chainGroup.add(chainElement);
-    chainGroup.add(chainElementRotatedX)
-    return chainElement;
+    chainGroup.add(chainElementRotatedX);
+    for (let i = 0; i < 25; i++){
+        let newLongChainElement = chainElement.clone();
+        newLongChainElement.position.x = chainElement.position.x +i;
+        chainGroup.add(newLongChainElement);
+        let newShortElementChain = chainElementRotatedX.clone();
+        newShortElementChain.position.x = chainElementRotatedX.position.x + i;
+        chainGroup.add(newShortElementChain);
+    }
+    let chainGroupBelow = chainGroup.clone();
+    chainGroup.position.z =1.3;
+    chainGroup.rotation.z =0.04;
+    chainGroup.rotation.y = -0.07;
+
+    chainGroupBelow.position.y = -9.3;
+    chainGroupBelow.position.z =1.3;
+    chainGroupBelow.position.x = 1;
+    chainGroupBelow.rotation.y = -0.07;
+    chainGroupBelow.rotation.z = 0.15;
+    let cChainGroup = new THREE.Group();
+    let step = Math.PI/15;
+    for (let i = 0; i < Math.PI; i+= step){
+        let newLongRotatedChainElement = makeTorusMesh(0.5, 0.1,16, 100, materials[12]);
+        newLongRotatedChainElement.scale.x = 0.85;
+        newLongRotatedChainElement.scale.y = 0.4;
+        newLongRotatedChainElement.rotation.x = Math.PI/2;
+        newLongRotatedChainElement.rotation.y = i- 1.5;
+        newLongRotatedChainElement.position.x = 4.5* Math.cos(i) ;
+        newLongRotatedChainElement.position.y = 2.5*Math.sin(i);
+        cChainGroup.add(newLongRotatedChainElement);
+    }
+    let cChainGroupRight = cChainGroup.clone();
+    cChainGroupRight.rotation.z = 2*Math.PI - Math.PI/2;
+    cChainGroupRight.position.x = 23.1;
+    cChainGroupRight.position.z = 2.8;
+    cChainGroupRight.position.y = 2.1;
+    cChainGroupRight.scale.x = 0.75;
+    cChainGroupRight.scale.y = 0.5;
+
+
+    cChainGroup.rotation.z = Math.PI/2;
+    cChainGroup.position.x = -2.3;
+    cChainGroup.position.z = 1.3;
+
+    /*for (let i = 0; i < 2*Math.PI; i+=step){
+        let gearSpikeClone = gearSpikeMesh.clone();
+        gearSpikeClone.rotation.z = i - 1.6;
+        gearSpikeClone.position.x = 2 * Math.cos(i);
+        gearSpikeClone.position.z = 2 * Math.sin(i);
+        gearCylinderMesh.add(gearSpikeClone);
+    }*/
+
+    wholeChain.add(chainGroup);
+    wholeChain.add(chainGroupBelow);
+    wholeChain.add(cChainGroup);
+    wholeChain.add(cChainGroupRight);
+    //wholeChain.add(chainGroupBelowRight);
+    return wholeChain;
+}
+
+function addGrass(){
+    //Plane med gress-farge
+    let planeGeo = new THREE.PlaneGeometry(SIZE * 2, SIZE * 2);
+    let planeMesh = new THREE.Mesh(planeGeo, materials[5]);
+    planeMesh.rotation.x = Math.PI / 2;
+    planeMesh.receiveShadow = true;	//NB!
+    scene.add(planeMesh);
+
+}
+
+function addPlainPlane(){
+    let gPlane = new THREE.PlaneGeometry(SIZE * 2, SIZE * 2);
+    let mPlane = new THREE.MeshLambertMaterial({ color: 0x33aabb, side: THREE.DoubleSide });
+    let meshPlane = new THREE.Mesh(gPlane, mPlane);
+    meshPlane.rotation.x = Math.PI / 2;
+    meshPlane.receiveShadow = true;	//NB!
+    scene.add(meshPlane);
 }
