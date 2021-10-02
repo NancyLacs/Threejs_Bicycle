@@ -736,12 +736,26 @@ function keyCheck(elapsed) {
     }
 
     if (currentlyPressedKeys[65]) { //A
-        camera.position.x = camera.position.x - 30 * (Math.PI/180)
+        if (camera.position.x < -100) {
+            camera.position.z = (-1)
+        }
+        if (camera.position.z < 0){
+            camera.position.x -= 1
+        }
+        //camera.position.x = camera.position.x - 30 * (Math.PI/90)
+        camera.position.z = camera.position.z - 20
         controls.update();
     }
 
     if (currentlyPressedKeys[68]) { //D
-        camera.position.x = camera.position.x + 30 * (Math.PI/180)
+        if (camera.position.x > 100) {
+            camera.position.z = (-1)
+        }
+        if (camera.position.z < 0){
+            camera.position.x +=1
+        }
+        //camera.position.x = (camera.position.x + 30 * (Math.PI/90))
+        camera.position.z = camera.position.z + 20
         controls.update();
     }
 
